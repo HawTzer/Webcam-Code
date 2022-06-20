@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Webcam</title>
+    <script src="gfg.js"></script>
+</head>
+
+<body>
+
+    <!--stream video via webcam-->
+    <div class="video-wrap">
+        <video id="video" playsinline autoplay style="border: 1px solid black;"></video>
+    </div>
+
+    <!--trigger canvas web api-->
+    <div class="controller">
+        <button id="capture">Capture Image</button>
+
+        <button>
+            <a href="#" class="button" id="button" download="my-file-name.jpg">Download as Image</a>
+        </button>
+
+        <button id="save"> <a href="" id="c">Download as TXT file</a></button>
+
+        <input id="inputFileToLoad" type="file" onchange="encodeImageFileAsURL();" />
+    </div>
+
+    <!--webcam video snapshot-->
+    <canvas id="canvas" width="640" height="480" style="border: 1px solid black"></canvas>
+
+    <div id="imgTest"></div>
+
+    <script>
+
+        'use strict';
+
+        var base;
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const capture = document.getElementById('capture');
+        const save = document.getElementById('save');
+        const errorMsgElement = document.getElementById('span#ErrorMsg');
+
+        const constraints = {
+            video: {
+                width: 640, height: 480
+            }
+        };
+
+        //access webcam
+        async function init() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia(constraints);
+                handleSuccess(stream);
+            }
+            catch (e) {
+                errorMsgElement.innerHTML = `navigator.getUserMedia.error:${e.toString()}`;
+            }
+        }
+
+        //success
+        function handleSuccess(stream) {
+            window.stream = stream;
+            video.srcObject = stream;
+        }
+
+        //load init
+        init();
+
+        //capture image
+        var context = canvas.getContext('2d');
+
+        var reader = new FileReader();
+        capture.addEventListener("click", function () {
+            context.drawImage(video, 0, 0, 640, 480);
+            console.log("success");
+        });
+
+        //save image
+        var button = document.getElementById('button');
+        button.addEventListener('click', function (e) {
+            var dataURL = canvas.toDataURL('image/jpeg');
+            button.href = dataURL;
+            console.log("success");
+        });
+
+        //save txt
+        save.addEventListener("click", function () {
+            //will save text to local file once button is clicked
+            base = canvas.toDataURL();
+            var blob = new Blob([base],
+                { type: "text/plain;charset=utf-8" });
+            var link = URL.createObjectURL(blob);
+
+            let c = document.getElementById("c");
+            c.href = link;
+            c.download = "base64.txt";
+
+            console.log("success");
+        });
+
+    </script>
+</body>
+
+</html>
